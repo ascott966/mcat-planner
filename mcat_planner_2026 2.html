@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MCAT 2026">
+<meta name="theme-color" content="#ffffff">
+<title>MCAT Planner 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --green:#1D9E75;--gl:rgba(29,158,117,0.13);--gd:#0F6E56;
+  --purple:#7F77DD;--pl:rgba(127,119,221,0.13);
+  --blue:#378ADD;--bl:rgba(55,138,221,0.13);
+  --amber:#BA7517;--al:rgba(186,117,23,0.13);
+  --coral:#D85A30;--cl:rgba(216,90,48,0.13);
+  --gray:#888780;--grl:rgba(136,135,128,0.13);
+  --red:#A32D2D;
+  --bg:#FAFAF8;--sur:#FFFFFF;
+  --bdr:rgba(0,0,0,0.09);--bdrs:rgba(0,0,0,0.16);
+  --tx:#1a1a18;--tx2:#6b6b67;--tx3:#9e9e99;
+  --r:10px;--rs:6px;--nav:60px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#141412;--sur:#1e1e1b;
+  --bdr:rgba(255,255,255,0.09);--bdrs:rgba(255,255,255,0.16);
+  --tx:#f0f0ec;--tx2:#a0a09a;--tx3:#6a6a65;
+  --gl:rgba(29,158,117,0.18);--pl:rgba(127,119,221,0.18);
+  --bl:rgba(55,138,221,0.18);--al:rgba(186,117,23,0.18);
+  --cl:rgba(216,90,48,0.18);--grl:rgba(136,135,128,0.18);
+}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.5;}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
+.main{flex:1;overflow-y:auto;padding:14px 14px calc(var(--nav)+20px);-webkit-overflow-scrolling:touch;}
+.bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--sur);border-top:.5px solid var(--bdr);display:grid;grid-template-columns:repeat(7,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:100;}
+.nb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer;color:var(--tx3);font-size:9px;font-weight:600;font-family:'DM Sans',sans-serif;padding:6px 0;transition:color .15s;letter-spacing:.02em;}
+.nb.active{color:var(--green);}
+.nb svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.sec{display:none;}.sec.active{display:block;}
+.card{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+.met{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.mc{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--r);padding:12px;}
+.ml{font-size:10px;color:var(--tx3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
+.mv{font-size:22px;font-weight:600;color:var(--tx);line-height:1.1;}
+.ms{font-size:11px;color:var(--tx2);margin-top:3px;}
+.ptit{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+.sh{font-size:15px;font-weight:600;color:var(--tx);margin-bottom:3px;}
+.ssub{font-size:12px;color:var(--tx2);margin-bottom:12px;}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;margin-bottom:7px;letter-spacing:.03em;color:white;}
+.task{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:.5px solid var(--bdr);}
+.task:last-child{border-bottom:none;padding-bottom:0;}
+.chk{width:20px;height:20px;border:1.5px solid var(--bdrs);border-radius:5px;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--bg);}
+.chk.done{background:var(--green);border-color:var(--green);}
+.chk.done::after{content:'';display:block;width:10px;height:6px;border-left:2px solid white;border-bottom:2px solid white;transform:rotate(-45deg) translateY(-1px);}
+.ti{flex:1;min-width:0;}
+.tt{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:2px;}
+.tt.done{text-decoration:line-through;color:var(--tx3);}
+.td{font-size:11px;color:var(--tx2);}
+.badge{font-size:9px;padding:2px 6px;border-radius:20px;font-weight:700;flex-shrink:0;letter-spacing:.03em;}
+.bpsych{background:var(--pl);color:var(--purple);}
+.bbio{background:var(--gl);color:var(--gd);}
+.bchem{background:var(--al);color:var(--amber);}
+.bcars{background:var(--cl);color:var(--coral);}
+.brev{background:var(--grl);color:var(--gray);}
+.bexam{background:var(--bl);color:var(--blue);}
+.boff{background:var(--grl);color:var(--gray);}
+.tb{display:flex;gap:10px;padding:6px 0;border-bottom:.5px solid var(--bdr);}
+.tb:last-child{border-bottom:none;}
+.tl{font-size:10px;color:var(--tx3);width:62px;flex-shrink:0;padding-top:2px;font-family:'DM Mono',monospace;}
+.tk{font-size:12px;color:var(--tx);}
+.cnav{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.cnav button{background:var(--bg);border:.5px solid var(--bdr);border-radius:var(--rs);padding:7px 14px;font-size:15px;cursor:pointer;color:var(--tx);font-family:'DM Sans',sans-serif;}
+.cnav span{flex:1;text-align:center;font-size:14px;font-weight:600;}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.clab{text-align:center;font-size:10px;color:var(--tx3);padding:3px 0;font-weight:600;}
+.cd{border:.5px solid var(--bdr);border-radius:5px;padding:4px 3px;min-height:48px;cursor:pointer;}
+.cd:active{opacity:.7;}
+.cd.today{border-color:var(--green);border-width:1.5px;}
+.cd.exam-day{background:var(--bl);border-color:var(--blue);border-width:1.5px;}
+.cd.diag-day{background:var(--pl);border-color:var(--purple);border-width:1.5px;}
+.cd.cruise-day{background:var(--al);border-color:var(--amber);}
+.cd.off-day{background:var(--grl);border-color:var(--gray);}
+.cd.int-day{background:var(--gl);border-color:var(--green);}
+.cd.om{opacity:.3;}
+.cdn{font-size:11px;font-weight:600;margin-bottom:1px;}
+.cdl{font-size:8px;font-weight:600;display:block;line-height:1.3;color:var(--tx2);}
+.leg{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--tx2);}
+.ld{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.fld{margin-bottom:9px;}
+.fld label{font-size:11px;color:var(--tx2);display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;}
+.fld input,.fld select,.fld textarea{width:100%;padding:9px 11px;border:.5px solid var(--bdrs);border-radius:var(--rs);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);-webkit-appearance:none;}
+.fld textarea{resize:vertical;min-height:72px;line-height:1.5;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.btn{width:100%;padding:12px;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:3px;}
+.btn-g{background:var(--green);color:white;}
+.btn-g:active{background:var(--gd);}
+.se{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:.5px solid var(--bdr);}
+.se:last-child{border-bottom:none;}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+.chip{padding:2px 6px;border-radius:20px;font-size:10px;font-weight:700;}
+.stot{font-size:20px;font-weight:600;}
+.dbtn{background:none;border:none;cursor:pointer;color:var(--tx3);padding:4px;font-size:20px;line-height:1;}
+.brow{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.blbl{font-size:12px;font-weight:600;width:80px;flex-shrink:0;}
+.bwrap{flex:1;background:var(--bg);border-radius:3px;height:7px;overflow:visible;position:relative;}
+.bfill{height:100%;border-radius:3px;transition:width .4s;}
+.btgt{position:absolute;top:-3px;width:1.5px;height:13px;background:var(--gray);opacity:.5;}
+.bstat{font-size:10px;font-weight:700;flex-shrink:0;width:70px;text-align:right;}
+.rc{border-left:3px solid var(--green);background:var(--bg);border-radius:0 var(--rs) var(--rs) 0;padding:10px 11px;margin-bottom:7px;}
+.rt{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:2px;}
+.rd{font-size:11px;color:var(--tx2);line-height:1.5;}
+.rco{font-size:10px;font-weight:700;margin-top:3px;}
+.pb{border-left:3px solid var(--green);padding:10px 11px;margin-bottom:9px;border-radius:0 var(--rs) var(--rs) 0;background:var(--bg);}
+.pn{font-size:13px;font-weight:600;margin-bottom:1px;}
+.pr{font-size:11px;color:var(--tx2);margin-bottom:3px;}
+.pd{font-size:11px;color:var(--tx3);line-height:1.5;}
+.hg{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.hb{border-radius:var(--rs);padding:11px;}
+.ei{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:.5px solid var(--bdr);}
+.ei:last-child{border-bottom:none;}
+.wal{padding:9px 0;border-bottom:.5px solid var(--bdr);}
+.wal:last-child{border-bottom:none;}
+.itabs{display:flex;border:.5px solid var(--bdr);border-radius:var(--rs);overflow:hidden;margin-bottom:12px;}
+.itab{flex:1;padding:8px 4px;font-size:10px;font-weight:700;border:none;background:transparent;color:var(--tx3);cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.02em;}
+.itab.active{background:var(--green);color:white;}
+.isec{display:none;}.isec.active{display:block;}
+.chwrap{position:relative;width:100%;height:180px;margin-top:10px;}
+.sdot{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;}
+.srow{padding:9px 0;border-bottom:.5px solid var(--bdr);}
+.srow:last-child{border-bottom:none;}
+.stop{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.sname{font-size:13px;font-weight:600;}
+.sbtns{display:flex;gap:3px;}
+.sbtn{padding:3px 7px;border-radius:20px;font-size:9px;font-weight:700;cursor:pointer;border:.5px solid var(--bdrs);background:var(--bg);color:var(--tx3);}
+.sbtn.on{color:white;border-color:transparent;}
+.msi{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid var(--bdr);}
+.msi:last-child{border-bottom:none;}
+.msd{font-size:20px;font-weight:600;width:42px;text-align:center;flex-shrink:0;}
+.msl{font-size:13px;font-weight:600;}
+.mdate{font-size:11px;color:var(--tx2);}
+.tgrid{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.ttag{padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:.5px solid var(--bdrs);background:var(--bg);color:var(--tx2);}
+.ttag.sel{background:var(--purple);color:white;border-color:transparent;}
+.streak-row{display:flex;gap:3px;flex-wrap:wrap;margin-top:10px;}
+.toast{position:fixed;top:16px;right:16px;background:var(--green);color:white;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;opacity:0;transition:opacity .3s;z-index:999;pointer-events:none;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="main" id="main">
+
+<!-- TODAY -->
+<div class="sec active" id="sec-today">
+  <div class="met">
+    <div class="mc"><div class="ml">Days to MCAT</div><div class="mv" id="dl">—</div><div class="ms">Sept 15, 2026</div></div>
+    <div class="mc"><div class="ml">Study streak</div><div class="mv" id="sv">—</div><div class="ms">days 🔥</div></div>
+    <div class="mc"><div class="ml">Best score</div><div class="mv" id="bs">—</div><div class="ms">practice total</div></div>
+    <div class="mc"><div class="ml">Target</div><div class="mv">510+</div><div class="ms">83rd percentile</div></div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+      <div><div class="pill" id="tp">—</div><div class="sh" id="th">Today</div><div style="font-size:11px;color:var(--tx2);" id="td2"></div></div>
+      <div style="text-align:right;"><div style="font-size:13px;font-weight:600;color:var(--green);" id="thr">—</div><div style="font-size:10px;color:var(--tx3);margin-top:2px;" id="tprog"></div></div>
+    </div>
+    <div id="tlist"></div>
+  </div>
+  <div class="card" id="scard"><div class="sh" style="margin-bottom:10px;">Suggested schedule</div><div id="tblocks"></div></div>
+  <div class="card">
+    <div class="sh" style="margin-bottom:8px;">Quick note</div>
+    <div class="fld"><textarea id="qnote" placeholder="What clicked? What was hard? What to revisit?"></textarea></div>
+    <button class="btn btn-g" onclick="saveQNote()">Save note</button>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="sec" id="sec-calendar">
+  <div class="ptit">Calendar</div>
+  <div class="card">
+    <div class="cnav"><button onclick="pM()">‹</button><span id="mlbl"></span><button onclick="nM()">›</button></div>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:var(--green);"></div>Intensive</div>
+      <div class="li"><div class="ld" style="background:var(--blue);"></div>Exam</div>
+      <div class="li"><div class="ld" style="background:var(--purple);"></div>Diagnostic</div>
+      <div class="li"><div class="ld" style="background:var(--amber);"></div>Cruise</div>
+      <div class="li"><div class="ld" style="background:var(--gray);"></div>Off</div>
+    </div>
+    <div class="cgrid" id="clbls"></div>
+    <div class="cgrid" style="margin-top:2px;" id="cgrid"></div>
+  </div>
+  <div class="card" id="cdet"><div style="text-align:center;padding:20px;color:var(--tx3);font-size:13px;">Tap any day to see its plan</div></div>
+</div>
+
+<!-- SCORES -->
+<div class="sec" id="sec-scores">
+  <div class="ptit">Score tracker</div>
+  <div class="itabs">
+    <button class="itab active" onclick="si('scores','log',this)">Log</button>
+    <button class="itab" onclick="si('scores','hist',this)">History</button>
+    <button class="itab" onclick="si('scores','wa',this)">Wrong Ans.</button>
+    <button class="itab" onclick="si('scores','chart',this)">Progress</button>
+  </div>
+  <div class="isec active" id="scores-log">
+    <div class="card">
+      <div class="sh">Log a score</div><div class="ssub">Saves automatically and persists forever</div>
+      <div class="g2">
+        <div class="fld"><label>Date</label><input type="date" id="sdate"></div>
+        <div class="fld"><label>Test</label><select id="stype"><option>Diagnostic (Blueprint)</option><option>Kaplan FL1</option><option>Kaplan FL2</option><option>Princeton FL1</option><option>Princeton FL2</option><option>AAMC FL1</option><option>AAMC FL2</option><option>AAMC FL3</option><option>AAMC FL4</option><option>Other</option></select></div>
+      </div>
+      <div class="fld"><label>Total score</label><input type="number" id="stot" min="472" max="528" placeholder="e.g. 504"></div>
+      <div class="g3">
+        <div class="fld"><label>C/P</label><input type="number" id="scp" min="118" max="132" placeholder="118–132"></div>
+        <div class="fld"><label>CARS</label><input type="number" id="scars" min="118" max="132" placeholder="118–132"></div>
+        <div class="fld"><label>B/B</label><input type="number" id="sbb" min="118" max="132" placeholder="118–132"></div>
+      </div>
+      <div class="fld"><label>Psych/Soc</label><input type="number" id="sps" min="118" max="132" placeholder="118–132"></div>
+      <div class="fld"><label>Notes (optional)</label><textarea id="snotes" placeholder="How did it feel? Anything notable?"></textarea></div>
+      <button class="btn btn-g" onclick="logScore()">Log score</button>
+    </div>
+  </div>
+  <div class="isec" id="scores-hist">
+    <div class="card"><div class="sh" style="margin-bottom:12px;">Score history</div><div id="slist"><div style="text-align:center;padding:20px;color:var(--tx3);font-size:13px;">No scores yet!</div></div></div>
+    <div class="card" id="wcard" style="display:none;"><div class="sh" style="margin-bottom:12px;">Section averages</div><div id="sbars"></div><div style="margin-top:10px;padding-top:10px;border-top:.5px solid var(--bdr);"><button onclick="clrScores()" style="background:none;border:none;color:var(--tx3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Clear all scores</button></div></div>
+  </div>
+  <div class="isec" id="scores-wa">
+    <div class="card">
+      <div class="sh">Log a wrong answer</div><div class="ssub">Track topics you miss so you know where to focus</div>
+      <div class="g2">
+        <div class="fld"><label>Exam</label><select id="waexam"><option>Diagnostic</option><option>Kaplan FL1</option><option>Kaplan FL2</option><option>Princeton FL1</option><option>Princeton FL2</option><option>AAMC FL1</option><option>AAMC FL2</option><option>AAMC FL3</option><option>AAMC FL4</option></select></div>
+        <div class="fld"><label>Section</label><select id="wasec" onchange="renderTopics(this.value)"><option>C/P</option><option>CARS</option><option>B/B</option><option>Psych/Soc</option></select></div>
+      </div>
+      <div class="fld"><label>Topic (type or tap below)</label><input type="text" id="watopic" placeholder="e.g. Thermodynamics..."></div>
+      <div class="fld"><label>Quick-select topic</label><div class="tgrid" id="tgrid"></div></div>
+      <div class="fld"><label>Why you missed it</label><select id="wareason"><option>Content gap — didn't know it</option><option>Careless mistake</option><option>Misread the question</option><option>Ran out of time</option><option>Knew it but second-guessed</option><option>Calculation error</option></select></div>
+      <div class="fld"><label>Notes</label><textarea id="wanotes" placeholder="What do you need to review?"></textarea></div>
+      <button class="btn btn-g" onclick="logWA()">Log wrong answer</button>
+    </div>
+    <div class="card"><div class="sh" style="margin-bottom:4px;">Most missed topics</div><div class="ssub">Based on all logged wrong answers</div><div id="wasum"></div></div>
+    <div class="card"><div class="sh" style="margin-bottom:12px;">All wrong answers</div><div id="walist"><div style="text-align:center;padding:20px;color:var(--tx3);font-size:13px;">None logged yet</div></div></div>
+  </div>
+  <div class="isec" id="scores-chart">
+    <div class="card"><div class="sh" style="margin-bottom:4px;">Score trajectory</div><div class="ssub">Total scores over time</div><div class="chwrap"><canvas id="sc1" role="img" aria-label="Score trajectory line chart">Score chart</canvas></div></div>
+    <div class="card"><div class="sh" style="margin-bottom:4px;">Section averages</div><div class="ssub">Average per section across all full-lengths</div><div class="chwrap" style="height:190px;"><canvas id="sc2" role="img" aria-label="Section averages bar chart">Section chart</canvas></div></div>
+  </div>
+</div>
+
+<!-- NOTES -->
+<div class="sec" id="sec-notes">
+  <div class="ptit">Study notes</div>
+  <div class="itabs">
+    <button class="itab active" onclick="si('notes','day',this)">Today</button>
+    <button class="itab" onclick="si('notes','hist',this)">Journal</button>
+    <button class="itab" onclick="si('notes','streak',this)">Streak</button>
+  </div>
+  <div class="isec active" id="notes-day">
+    <div class="card">
+      <div class="sh" style="margin-bottom:4px;">Daily study log</div>
+      <div class="ssub" id="nddate"></div>
+      <div class="fld"><label>Hours studied</label><input type="number" id="nhrs" min="0" max="12" step="0.5" placeholder="e.g. 6.5"></div>
+      <div class="fld"><label>What I covered</label><textarea id="nwhat" placeholder="Topics studied today..."></textarea></div>
+      <div class="fld"><label>What clicked ✓</label><textarea id="ngood" placeholder="Concepts that made sense..."></textarea></div>
+      <div class="fld"><label>What to revisit ↺</label><textarea id="nhard" placeholder="Topics that need more work..."></textarea></div>
+      <div class="fld"><label>Mood / energy</label><select id="nmood"><option>💪 Focused and productive</option><option>😊 Good, steady progress</option><option>😐 Okay, got through it</option><option>😴 Tired but showed up</option><option>😤 Tough day</option></select></div>
+      <button class="btn btn-g" onclick="saveDayNote()">Save log</button>
+    </div>
+  </div>
+  <div class="isec" id="notes-hist">
+    <div class="card"><div class="sh" style="margin-bottom:12px;">Study journal</div><div id="nlist"><div style="text-align:center;padding:20px;color:var(--tx3);font-size:13px;">No notes yet!</div></div></div>
+  </div>
+  <div class="isec" id="notes-streak">
+    <div class="card">
+      <div class="sh" style="margin-bottom:4px;">Study streak</div><div class="ssub">Days with logged activity</div>
+      <div style="text-align:center;margin:16px 0;"><div style="font-size:52px;font-weight:700;color:var(--green);" id="bstreak">0</div><div style="font-size:13px;color:var(--tx2);">day streak 🔥</div></div>
+      <div class="streak-row" id="sdots"></div>
+    </div>
+    <div class="card"><div class="sh" style="margin-bottom:4px;">Weekly hours logged</div><div class="ssub">Based on your daily study logs</div><div class="chwrap" style="height:160px;"><canvas id="hch" role="img" aria-label="Weekly hours bar chart">Hours chart</canvas></div></div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="sec" id="sec-progress">
+  <div class="ptit">Subject progress</div>
+  <div class="card"><div class="sh" style="margin-bottom:4px;">Countdown milestones</div><div class="ssub">Days until each key date</div><div id="milestones"></div></div>
+  <div class="card"><div class="sh" style="margin-bottom:4px;">Content coverage</div><div class="ssub">Mark topics as you work through them</div><div id="sprog"></div></div>
+</div>
+
+<!-- EXAMS -->
+<div class="sec" id="sec-exams">
+  <div class="ptit">Practice exams</div>
+  <div class="card"><div class="sh">Exam schedule</div><div class="ssub">9 total · diagnostic → 3rd party → AAMC Phase 3 only</div><div id="elist"></div></div>
+  <div class="card">
+    <div class="sh" style="margin-bottom:10px;">Where to get them</div>
+    <div class="rc" style="border-color:var(--purple);"><div class="rt">Blueprint MCAT</div><div class="rd">1 free FL for diagnostic. Best analytics.</div><div class="rco" style="color:var(--purple);">blueprintprep.com</div></div>
+    <div class="rc" style="border-color:var(--gray);"><div class="rt">Kaplan</div><div class="rd">3 free FLs with account. FL #1 and #2.</div><div class="rco" style="color:var(--gray);">kaptest.com</div></div>
+    <div class="rc" style="border-color:var(--coral);"><div class="rt">Princeton Review</div><div class="rd">2 free FLs. FL #3 and #4.</div><div class="rco" style="color:var(--coral);">princetonreview.com</div></div>
+    <div class="rc" style="border-color:var(--blue);"><div class="rt">AAMC Official Bundle</div><div class="rd">FL1–4 + Section Banks + Question Packs. Save for August only.</div><div class="rco" style="color:var(--blue);">~$300 · aamc.org</div></div>
+  </div>
+</div>
+
+<!-- RESOURCES -->
+<div class="sec" id="sec-resources">
+  <div class="ptit">Resources</div>
+  <div class="card">
+    <div class="sh">Paid — worth it</div><div class="ssub">Best available since budget isn't a concern</div>
+    <div class="rc" style="border-color:var(--purple);"><div class="rt">Blueprint MCAT Full Course</div><div class="rd">Best self-paced course. Exceptional Psych/Soc and CARS. Adaptive practice + analytics.</div><div class="rco" style="color:var(--purple);">~$299–$499 · blueprintprep.com</div></div>
+    <div class="rc" style="border-color:var(--green);"><div class="rt">Sketchy MCAT</div><div class="rd">Visual storytelling for Bio, Biochem, Micro. Incredibly sticky — remember things months later.</div><div class="rco" style="color:var(--green);">~$30/month · sketchy.com</div></div>
+    <div class="rc" style="border-color:var(--blue);"><div class="rt">AAMC Official Bundle</div><div class="rd">All 4 FLs + Section Banks + Question Packs + Guide. Buy as bundle. Save for Phase 3.</div><div class="rco" style="color:var(--blue);">~$300 · aamc.org</div></div>
+    <div class="rc" style="border-color:var(--amber);"><div class="rt">Cram Fighter</div><div class="rd">Auto-schedules Anki decks around your exam dates. Removes daily decision fatigue.</div><div class="rco" style="color:var(--amber);">~$30/month · cramfighter.com</div></div>
+    <div class="rc" style="border-color:var(--coral);"><div class="rt">Kaplan MCAT 7-Book Set</div><div class="rd">Great physical reference for deep content dives. Best for Bio/Biochem and Chem.</div><div class="rco" style="color:var(--coral);">~$140 · amazon.com</div></div>
+  </div>
+  <div class="card">
+    <div class="sh">Free — don't skip</div><div class="ssub">Genuinely excellent at zero cost</div>
+    <div class="rc"><div class="rt">AK Lectures (YouTube)</div><div class="rd">#1 Psych/Soc resource. ~80 videos from scratch. Clear and MCAT-focused.</div><div class="rco" style="color:var(--green);">Free · youtube.com/AKlectures</div></div>
+    <div class="rc" style="border-color:var(--coral);"><div class="rt">Jack Westin (CARS)</div><div class="rd">Free daily passages. 1–2 every day. Non-negotiable — the best CARS practice.</div><div class="rco" style="color:var(--coral);">Free · jackwestin.com</div></div>
+    <div class="rc" style="border-color:var(--amber);"><div class="rt">Khan Academy MCAT</div><div class="rd">Thorough content for all sections. Best for Gen Chem, O-Chem, Psych/Soc.</div><div class="rco" style="color:var(--amber);">Free · khanacademy.org/mcat</div></div>
+    <div class="rc" style="border-color:var(--purple);"><div class="rt">Anking MCAT Anki Deck</div><div class="rd">Most comprehensive free Anki deck. All sections. Use alongside Premed95.</div><div class="rco" style="color:var(--purple);">Free · ankiweb.net</div></div>
+    <div class="rc" style="border-color:var(--gray);"><div class="rt">r/Mcat (Reddit)</div><div class="rd">Strategy, score reports, motivation. Search before asking — most questions answered.</div><div class="rco" style="color:var(--gray);">Free · reddit.com/r/Mcat</div></div>
+  </div>
+</div>
+
+</div>
+<nav class="bnav">
+  <button class="nb active" id="nav-today" onclick="showSec('today',this)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>Today</button>
+  <button class="nb" id="nav-calendar" onclick="showSec('calendar',this)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Cal</button>
+  <button class="nb" id="nav-scores" onclick="showSec('scores',this)"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Scores</button>
+  <button class="nb" id="nav-notes" onclick="showSec('notes',this)"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Notes</button>
+  <button class="nb" id="nav-progress" onclick="showSec('progress',this)"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progress</button>
+  <button class="nb" id="nav-exams" onclick="showSec('exams',this)"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/></svg>Exams</button>
+  <button class="nb" id="nav-resources" onclick="showSec('resources',this)"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Resources</button>
+</nav>
+</div>
+<div class="toast" id="toast">✓ Saved</div>
+<script>
+const TODAY=new Date(),TEST=new Date('2026-09-15'),INT=new Date('2026-06-01');
+function dk(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+const TK=dk(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate());
+const isPre=TODAY<INT;
+
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function ld(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+
+let done=ld('mc-done-'+TK)||{};
+let scores=ld('mc-scores')||[];
+let was=ld('mc-wa')||[];
+let notes=ld('mc-notes')||{};
+let sp=ld('mc-sp')||{};
+let selT=[];
+
+document.getElementById('dl').textContent=Math.max(0,Math.ceil((TEST-TODAY)/86400000));
+document.getElementById('sdate').value=TK;
+document.getElementById('nddate').textContent=TODAY.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+const n=notes[TK];
+if(n){if(n.hrs)document.getElementById('nhrs').value=n.hrs;if(n.what)document.getElementById('nwhat').value=n.what;if(n.good)document.getElementById('ngood').value=n.good;if(n.hard)document.getElementById('nhard').value=n.hard;if(n.mood)document.getElementById('nmood').value=n.mood;}
+const qn=ld('mc-qn-'+TK)||'';
+document.getElementById('qnote').value=qn;
+
+const SP={
+  '2026-05-17':{type:'diag',label:'Diag.'},'2026-05-23':{type:'off',label:'Off'},'2026-05-24':{type:'off',label:'Off'},
+  '2026-06-06':{type:'exam',label:'FL#1'},'2026-06-20':{type:'exam',label:'FL#2'},'2026-07-04':{type:'exam',label:'FL#3'},
+  '2026-07-17':{type:'cruise',label:'⛵'},'2026-07-18':{type:'cruise',label:'⛵'},'2026-07-19':{type:'cruise',label:'⛵'},
+  '2026-07-20':{type:'cruise',label:'⛵'},'2026-07-21':{type:'cruise',label:'⛵'},'2026-07-22':{type:'cruise',label:'⛵'},
+  '2026-07-23':{type:'cruise',label:'⛵'},'2026-07-24':{type:'cruise',label:'⛵'},'2026-07-25':{type:'cruise',label:'⛵'},
+  '2026-07-26':{type:'cruise',label:'⛵'},'2026-08-01':{type:'exam',label:'FL#4'},
+  '2026-08-08':{type:'exam',label:'FL#5★'},'2026-08-15':{type:'exam',label:'FL#6★'},
+  '2026-08-22':{type:'exam',label:'FL#7★'},'2026-08-29':{type:'exam',label:'FL#8★'},
+  '2026-09-15':{type:'off',label:'MCAT!'},
+};
+
+const TOPICS={
+  'C/P':['Thermodynamics','Electrochemistry','Acid/Base','Kinematics','Optics','Atomic structure','Stoichiometry','Organic reactions','Spectroscopy','Fluid dynamics'],
+  'CARS':['Main idea','Author tone','Inference','Strengthen/weaken','Vocabulary in context','Passage structure','Time management'],
+  'B/B':['Amino acids','Enzyme kinetics','Metabolism','DNA/RNA','Cell biology','Genetics','Biochem pathways','Microbiology','Lab techniques','Immunology'],
+  'Psych/Soc':['Memory','Learning','Motivation','Personality','Social behavior','Research methods','Statistics','Health disparities','Socialization','Perception'],
+};
+
+function renderTopics(sec){
+  selT=[];
+  const ts=TOPICS[sec]||[];
+  document.getElementById('tgrid').innerHTML=ts.map(t=>`<div class="ttag" onclick="togT(this,'${t}')">${t}</div>`).join('');
+}
+function togT(el,t){
+  if(el.classList.contains('sel')){el.classList.remove('sel');selT=selT.filter(x=>x!==t);}
+  else{el.classList.add('sel');selT.push(t);}
+}
+renderTopics('C/P');
+
+const EXAMS=[
+  {date:'May 17',label:'Diagnostic',src:'Blueprint (free)',note:"Baseline — don't stress the score"},
+  {date:'Jun 6',label:'FL #1',src:'Kaplan (free)',note:'First benchmark after content review'},
+  {date:'Jun 20',label:'FL #2',src:'Kaplan (free)',note:'Review every wrong answer next day'},
+  {date:'Jul 4',label:'FL #3',src:'Princeton Review (free)',note:'Last exam before cruise'},
+  {date:'Aug 1',label:'FL #4',src:'Princeton Review (free)',note:'Back from cruise — shake the rust off'},
+  {date:'Aug 8',label:'FL #5 ★',src:'AAMC FL1 (~$35)',note:'First official — most realistic score'},
+  {date:'Aug 15',label:'FL #6 ★',src:'AAMC FL2 (~$35)',note:'Drill weaknesses from FL5'},
+  {date:'Aug 22',label:'FL #7 ★',src:'AAMC FL3 (~$35)',note:'Simulate exact test-day conditions'},
+  {date:'Aug 29',label:'FL #8 ★',src:'AAMC FL4 (~$35)',note:'Final full-length — 2.5 weeks out'},
+];
+document.getElementById('elist').innerHTML=EXAMS.map(e=>`
+  <div class="ei"><div><div style="font-size:13px;font-weight:600;margin-bottom:1px;">${e.label} — ${e.date}, 2026</div>
+  <div style="font-size:11px;color:var(--tx2);">${e.src}</div><div style="font-size:11px;color:var(--tx3);margin-top:1px;">${e.note}</div></div>
+  <span class="badge ${e.label.includes('★')?'bexam':'brev'}" style="margin-top:2px;">${e.label.includes('★')?'AAMC':'3rd'}</span></div>
+`).join('');
+
+const MS=[
+  {l:'Diagnostic',d:'2026-05-17',c:'var(--purple)'},
+  {l:"Brother's graduation",d:'2026-05-24',c:'var(--gray)'},
+  {l:'Internship starts',d:'2026-06-01',c:'var(--amber)'},
+  {l:'FL #1 — Kaplan',d:'2026-06-06',c:'var(--blue)'},
+  {l:'FL #2 — Kaplan',d:'2026-06-20',c:'var(--blue)'},
+  {l:'FL #3 — Princeton',d:'2026-07-04',c:'var(--blue)'},
+  {l:'Cruise starts 🚢',d:'2026-07-17',c:'var(--amber)'},
+  {l:'Back from cruise',d:'2026-07-27',c:'var(--green)'},
+  {l:'FL #4 — Princeton',d:'2026-08-01',c:'var(--blue)'},
+  {l:'Phase 3 / AAMC FL1',d:'2026-08-08',c:'var(--blue)'},
+  {l:'AAMC FL2',d:'2026-08-15',c:'var(--blue)'},
+  {l:'AAMC FL3',d:'2026-08-22',c:'var(--blue)'},
+  {l:'AAMC FL4 — final FL',d:'2026-08-29',c:'var(--blue)'},
+  {l:'Final week begins',d:'2026-09-08',c:'var(--gray)'},
+  {l:'MCAT Test Day 🎓',d:'2026-09-15',c:'var(--green)'},
+];
+document.getElementById('milestones').innerHTML=MS.map(m=>{
+  const dd=new Date(m.d+'T12:00:00');
+  const days=Math.ceil((dd-TODAY)/86400000);
+  if(days<0)return'';
+  return`<div class="msi"><div class="msd" style="color:${m.c};">${days}</div><div><div class="msl">${m.l}</div><div class="mdate">${dd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div></div></div>`;
+}).filter(Boolean).join('');
+
+const SUBS=[
+  {k:'psych',l:'Psych/Soc',c:'var(--purple)',ts:['Psychology fundamentals','Sensation & perception','Memory & learning','Motivation & emotion','Personality','Psychological disorders','Social processes','Demographics & health','Research methods','Statistics']},
+  {k:'bio',l:'Biology/Biochem',c:'var(--green)',ts:['Amino acids & proteins','Enzyme kinetics','Metabolism (glycolysis/TCA)','DNA/RNA structure','Transcription/translation','Cell biology','Genetics','Microbiology','Immunology','Lab techniques']},
+  {k:'gchem',l:'Gen Chem',c:'var(--amber)',ts:['Atomic structure','Periodic trends','Bonding','Stoichiometry','Thermodynamics','Kinetics','Acid/Base','Electrochemistry','Solutions','Gases']},
+  {k:'ochem',l:'O-Chem',c:'var(--coral)',ts:['Functional groups','Stereochemistry','Substitution/elimination','Carbonyl chemistry','Spectroscopy','Carbohydrates','Lipids','Amino acid reactions','Lab separations','Aromatic compounds']},
+  {k:'physics',l:'Physics',c:'var(--blue)',ts:['Kinematics','Forces/Newton\'s laws','Energy & work','Momentum','Waves & sound','Light & optics','Electricity','Magnetism','Fluid mechanics','Nuclear physics']},
+  {k:'cars',l:'CARS',c:'var(--coral)',ts:['Daily passage practice (Jack Westin)','Humanities passages','Social science passages','Main idea questions','Author tone','Inference questions','Strengthen/weaken','Vocabulary in context','Time management','Full section practice']},
+];
+const STATS=['Not started','In progress','Complete'];
+const STATC=['var(--gray)','var(--amber)','var(--green)'];
+
+function renderSP(){
+  document.getElementById('sprog').innerHTML=SUBS.map(s=>{
+    const pr=sp[s.k]||{};
+    const done2=s.ts.filter(t=>pr[t]==='Complete').length;
+    const pct=Math.round((done2/s.ts.length)*100);
+    return`<div class="srow">
+      <div class="stop"><div class="sname" style="color:${s.c};">${s.l} <span style="font-size:10px;color:var(--tx3);font-weight:400;">${done2}/${s.ts.length}</span></div><div style="font-size:11px;font-weight:700;color:${s.c};">${pct}%</div></div>
+      <div style="background:var(--bg);border-radius:3px;height:5px;margin-bottom:7px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${s.c};border-radius:3px;transition:width .4s;"></div></div>
+      ${s.ts.map(t=>{
+        const st=pr[t]||'Not started';const ci=STATS.indexOf(st);
+        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-top:.5px solid var(--bdr);">
+          <div style="font-size:11px;color:${ci>0?STATC[ci]:'var(--tx2)'};">${t}</div>
+          <div class="sbtns">${STATS.map((o,i)=>`<button class="sbtn ${st===o?'on':''}" style="${st===o?'background:'+STATC[i]+';':''}" onclick="setSP('${s.k}','${t.replace(/'/g,"\\'")}','${o}')">${o.replace('Not started','Not yet').replace('In progress','In prog.')}</button>`).join('')}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+function setSP(sub,topic,status){if(!sp[sub])sp[sub]={};sp[sub][topic]=status;sv('mc-sp',sp);renderSP();showToast();}
+renderSP();
+
+function getPhase(date){
+  const t=date.getTime();
+  if(t<new Date('2026-07-05').getTime())return{n:'Phase 1',c:'var(--green)'};
+  if(t>=new Date('2026-07-17').getTime()&&t<=new Date('2026-07-26').getTime())return{n:'Cruise 🚢',c:'var(--amber)'};
+  if(t<new Date('2026-08-08').getTime())return{n:'Phase 2',c:'var(--purple)'};
+  if(t<new Date('2026-09-08').getTime())return{n:'Phase 3',c:'var(--blue)'};
+  return{n:'Final week',c:'var(--gray)'};
+}
+
+function getTasks(date){
+  const key=dk(date.getFullYear(),date.getMonth(),date.getDate());
+  const s=SP[key];const dow=date.getDay();const isW=dow===0||dow===6;
+  const isCr=s&&s.type==='cruise';const isOff=s&&s.type==='off';
+  const isEx=s&&(s.type==='exam'||s.type==='diag');const pre=date<INT;const ph=getPhase(date);
+  if(isOff)return[{t:s.label==='MCAT!'?'🎓 Test day — you got this!':key==='2026-05-23'?"Day off — brother's grad party":key==='2026-05-24'?"Day off — graduation":'Day off',d:'No studying today. Enjoy!',b:'boff'}];
+  if(isEx)return[{t:`${s.label} — Full-length exam`,d:'7.5 hrs · simulate real test conditions',b:'bexam'},{t:'Tomorrow: full answer review',d:'Every wrong answer — log topics in Scores tab',b:'brev'}];
+  if(isCr)return[{t:'Anki — due cards only',d:'20–30 min max',b:'brev'},{t:'1 CARS passage',d:'Jack Westin · 15 min',b:'bcars'}];
+  if(isW){
+    if(ph.n.includes('1'))return[{t:'Psych/Soc content',d:'AK Lectures + notes · 90 min',b:'bpsych'},{t:'Gen Chem / O-Chem',d:'Khan Academy MCAT · 60 min',b:'bchem'},{t:'CARS practice',d:'4–5 passages · Jack Westin · 60 min',b:'bcars'},{t:'Bio/Biochem — Sketchy',d:'Visual learning · 90 min',b:'bbio'},{t:'Anki — all decks',d:'Full review · 45 min',b:'brev'},{t:'Weekly reflection',d:'Log in Notes tab · 20 min',b:'brev'}];
+    if(ph.n.includes('2'))return[{t:'Targeted content review',d:'Weakest section focus · 2 hrs',b:'brev'},{t:'CARS practice',d:'4–5 passages · 60 min',b:'bcars'},{t:'Anki — all decks',d:'45 min',b:'brev'},{t:'Weekly reflection',d:'Wrong-answer review · 30 min',b:'brev'}];
+    return[{t:'AAMC section bank',d:'Official questions · 2 hrs',b:'bexam'},{t:'Deep answer review',d:'Every mistake · 90 min',b:'brev'},{t:'Anki — weak area focus',d:'30–45 min',b:'brev'}];
+  }
+  if(pre)return[{t:'Psych/Soc — AK Lectures',d:'2–3 videos + notes · 90 min',b:'bpsych'},{t:'Psych/Soc Anki',d:"New cards · 45 min",b:'bpsych'},{t:'CARS — 2 passages',d:'Jack Westin · timed · 30 min',b:'bcars'},{t:'Bio/Biochem — Sketchy',d:'90 min',b:'bbio'},{t:'Gen Chem / O-Chem',d:'Khan Academy · 60 min',b:'bchem'},{t:'Anki — all decks',d:'Due cards · 45 min',b:'brev'},{t:"Review today's notes",d:'20 min before bed',b:'brev'}];
+  return[{t:'Anki review',d:'Due cards · 30–45 min',b:'brev'},{t:'CARS — 2 passages',d:'Jack Westin · 30 min',b:'bcars'},{t:'Content block',d:ph.n.includes('1')?'Psych/Soc · 60 min':'Weak section · 60–90 min',b:ph.n.includes('1')?'bpsych':'brev'}];
+}
+
+function getBlocks(date){
+  const dow=date.getDay();const isW=dow===0||dow===6;const pre=date<INT;
+  const key=dk(date.getFullYear(),date.getMonth(),date.getDate());const s=SP[key];
+  if(s&&(s.type==='off'||s.type==='cruise'))return null;
+  if(s&&(s.type==='exam'||s.type==='diag'))return[{t:'8:00 AM',v:'Start exam · real test conditions'},{t:'12:00 PM',v:'Lunch (built in)'},{t:'3:30 PM',v:'Done — rest and decompress'},{t:'Evening',v:'Skim score report · full review tomorrow'}];
+  if(pre&&!isW)return[{t:'8:00 AM',v:'Psych/Soc — AK Lectures + notes (90 min)'},{t:'9:30 AM',v:'Psych/Soc Anki — new cards (45 min)'},{t:'10:15 AM',v:'Break (15 min)'},{t:'10:30 AM',v:'CARS — 2 timed passages (30 min)'},{t:'11:00 AM',v:'Bio/Biochem — Sketchy (90 min)'},{t:'12:30 PM',v:'Lunch (45–60 min)'},{t:'1:30 PM',v:'Gen Chem / O-Chem — Khan Academy (60 min)'},{t:'2:30 PM',v:'Anki — all decks (45 min)'},{t:'3:15 PM',v:'Walk / recharge (30 min)'},{t:'3:45 PM',v:"Review today's notes (20 min)"},{t:'4:05 PM',v:'Done! 🎉'}];
+  if(isW)return[{t:'8:30 AM',v:'Psych/Soc content (90 min)'},{t:'10:00 AM',v:'Gen Chem / O-Chem (60 min)'},{t:'11:00 AM',v:'CARS — 4–5 passages (60 min)'},{t:'12:00 PM',v:'Lunch (45 min)'},{t:'12:45 PM',v:'Bio/Biochem — Sketchy (90 min)'},{t:'2:15 PM',v:'Anki — all decks (45 min)'},{t:'3:00 PM',v:'Weekly reflection (20 min)'},{t:'3:20 PM',v:'Done!'}];
+  return[{t:'After work',v:'Anki due cards (30–45 min)'},{t:'+45 min',v:'CARS — 2 passages (30 min)'},{t:'+30 min',v:'Content block — focus subject (60–90 min)'}];
+}
+
+function renderToday(){
+  const s=SP[TK];const tasks=getTasks(TODAY);const blocks=getBlocks(TODAY);
+  const ph=getPhase(TODAY);const isW=TODAY.getDay()===0||TODAY.getDay()===6;
+  const hrs=(s&&s.type==='cruise')?'1–2 hrs':isW?'6–8 hrs':isPre?'6–8 hrs':'2–3 hrs';
+  const pill=document.getElementById('tp');pill.textContent=ph.n;pill.style.background=ph.c;
+  document.getElementById('td2').textContent=TODAY.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('thr').textContent=hrs+' today';
+  const d2=Object.values(done).filter(Boolean).length;
+  document.getElementById('tprog').textContent=`${d2}/${tasks.length} complete`;
+  document.getElementById('tlist').innerHTML=tasks.map((t,i)=>`
+    <div class="task"><div class="chk ${done[i]?'done':''}" onclick="togTask(${i})"></div>
+    <div class="ti"><div class="tt ${done[i]?'done':''}">${t.t}</div><div class="td">${t.d}</div></div>
+    <span class="badge ${t.b}">${t.b.replace('b','').toUpperCase()}</span></div>
+  `).join('');
+  if(blocks){document.getElementById('tblocks').innerHTML=blocks.map(b=>`<div class="tb"><div class="tl">${b.t}</div><div class="tk">${b.v}</div></div>`).join('');document.getElementById('scard').style.display='block';}
+  else document.getElementById('scard').style.display='none';
+}
+function togTask(i){done[i]=!done[i];sv('mc-done-'+TK,done);renderToday();updateStreak();}
+function saveQNote(){sv('mc-qn-'+TK,document.getElementById('qnote').value);showToast();}
+
+// CALENDAR
+let cY=TODAY.getFullYear(),cM=TODAY.getMonth();
+function renderCal(){
+  const labs=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  document.getElementById('clbls').innerHTML=labs.map(l=>`<div class="clab">${l}</div>`).join('');
+  const first=new Date(cY,cM,1);const sd=first.getDay();
+  const dim=new Date(cY,cM+1,0).getDate();const dip=new Date(cY,cM,0).getDate();
+  document.getElementById('mlbl').textContent=first.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  let cells='';
+  for(let i=0;i<sd;i++)cells+=`<div class="cd om"><div class="cdn" style="color:var(--tx3);">${dip-sd+1+i}</div></div>`;
+  for(let d=1;d<=dim;d++){
+    const key=dk(cY,cM,d);const s=SP[key];const date=new Date(cY,cM,d);
+    const isT=key===TK;const d2=date.getDay();const isW2=d2===0||d2===6;const pre2=date<INT;
+    let cls='cd';
+    if(s){if(s.type==='exam')cls+=' exam-day';else if(s.type==='diag')cls+=' diag-day';else if(s.type==='cruise')cls+=' cruise-day';else if(s.type==='off')cls+=' off-day';}
+    else if(pre2&&!isW2)cls+=' int-day';
+    if(isT)cls+=' today';
+    const lbl=s?`<span class="cdl">${s.label}</span>`:(pre2&&!isW2?`<span class="cdl" style="color:var(--green);">6–8h</span>`:'');
+    cells+=`<div class="${cls}" onclick="showCD(${cY},${cM},${d})"><div class="cdn">${d}</div>${lbl}</div>`;
+  }
+  const rem=42-sd-dim;for(let i=1;i<=Math.min(rem,7);i++)cells+=`<div class="cd om"><div class="cdn" style="color:var(--tx3);">${i}</div></div>`;
+  document.getElementById('cgrid').innerHTML=cells;
+}
+function showCD(y,m,d){
+  const date=new Date(y,m,d);const tasks=getTasks(date);const blocks=getBlocks(date);
+  const ph=getPhase(date);const lbl=date.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const d2=date.getDay();const isW2=d2===0||d2===6;const pre2=date<INT;
+  const key=dk(y,m,d);const s=SP[key];const isCr=s&&s.type==='cruise';
+  const hrs=isCr?'1–2 hrs':isW2?'6–8 hrs':pre2?'6–8 hrs':'2–3 hrs';
+  let html=`<div style="margin-bottom:10px;"><div style="font-size:14px;font-weight:600;">${lbl}</div><div style="font-size:11px;color:var(--tx2);margin-top:2px;">${ph.n} · ${hrs}</div></div>`;
+  html+=tasks.map(t=>`<div class="task" style="padding:7px 0;"><div class="ti"><div class="tt">${t.t}</div><div class="td">${t.d}</div></div><span class="badge ${t.b}">${t.b.replace('b','').toUpperCase()}</span></div>`).join('');
+  if(blocks){html+=`<div style="margin-top:10px;padding-top:10px;border-top:.5px solid var(--bdr);"><div style="font-size:10px;font-weight:700;color:var(--tx3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">Schedule</div>`;html+=blocks.map(b=>`<div class="tb"><div class="tl">${b.t}</div><div class="tk">${b.v}</div></div>`).join('');html+='</div>';}
+  document.getElementById('cdet').innerHTML=html;
+  document.getElementById('cdet').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function pM(){cM--;if(cM<0){cM=11;cY--;}renderCal();}
+function nM(){cM++;if(cM>11){cM=0;cY++;}renderCal();}
+renderCal();
+
+// SCORES
+function logScore(){
+  const date=document.getElementById('sdate').value,type=document.getElementById('stype').value;
+  const total=parseInt(document.getElementById('stot').value)||null,cp=parseInt(document.getElementById('scp').value)||null;
+  const cars=parseInt(document.getElementById('scars').value)||null,bb=parseInt(document.getElementById('sbb').value)||null;
+  const ps=parseInt(document.getElementById('sps').value)||null,n2=document.getElementById('snotes').value;
+  if(!total&&!cp){alert('Enter at least a total or section score.');return;}
+  scores.unshift({date,type,total,cp,cars,bb,ps,notes:n2,id:Date.now()});
+  sv('mc-scores',scores);showToast();renderScores();renderCharts();
+  ['stot','scp','scars','sbb','sps','snotes'].forEach(id=>document.getElementById(id).value='');
+}
+function delScore(id){scores=scores.filter(s=>s.id!==id);sv('mc-scores',scores);renderScores();renderCharts();}
+function clrScores(){if(!confirm('Clear all scores?'))return;scores=[];sv('mc-scores',scores);renderScores();renderCharts();}
+
+function renderScores(){
+  const tots=scores.map(s=>s.total).filter(Boolean);
+  document.getElementById('bs').textContent=tots.length?Math.max(...tots):'—';
+  const list=document.getElementById('slist');
+  if(!scores.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--tx3);font-size:13px;">No scores yet!</div>';document.getElementById('wcard').style.display='none';return;}
+  list.innerHTML=scores.map(s=>{
+    const d=new Date(s.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const chips=[s.cp?`<span class="chip" style="background:var(--al);color:var(--amber);">C/P ${s.cp}</span>`:'',s.cars?`<span class="chip" style="background:var(--cl);color:var(--coral);">CARS ${s.cars}</span>`:'',s.bb?`<span class="chip" style="background:var(--gl);color:var(--green);">B/B ${s.bb}</span>`:'',s.ps?`<span class="chip" style="background:var(--pl);color:var(--purple);">P/S ${s.ps}</span>`:''].filter(Boolean).join('');
+    return`<div class="se"><div><div style="font-size:13px;font-weight:600;margin-bottom:2px;">${s.type}</div><div style="font-size:11px;color:var(--tx2);">${d}</div><div class="chips">${chips}</div>${s.notes?`<div style="font-size:11px;color:var(--tx3);margin-top:3px;">${s.notes}</div>`:''}</div><div style="display:flex;align-items:center;gap:6px;"><div class="stot">${s.total||''}</div><button class="dbtn" onclick="delScore(${s.id})">×</button></div></div>`;
+  }).join('');
+  const fl=scores.filter(s=>s.cp||s.cars||s.bb||s.ps);
+  if(!fl.length){document.getElementById('wcard').style.display='none';return;}
+  document.getElementById('wcard').style.display='block';
+  const avg=arr=>arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length):null;
+  const subs=[{l:'C/P',a:avg(fl.map(s=>s.cp).filter(Boolean)),c:'var(--amber)'},{l:'CARS',a:avg(fl.map(s=>s.cars).filter(Boolean)),c:'var(--coral)'},{l:'B/B',a:avg(fl.map(s=>s.bb).filter(Boolean)),c:'var(--green)'},{l:'P/S',a:avg(fl.map(s=>s.ps).filter(Boolean)),c:'var(--purple)'}];
+  const tgt=Math.round(((127.5-118)/14)*100);
+  document.getElementById('sbars').innerHTML=subs.map(s=>{
+    if(!s.a)return'';const pct=Math.round(((s.a-118)/14)*100);
+    const st=s.a>=127?'✓ On target':s.a>=124?'Close':'Focus here';const sc=s.a>=127?'var(--green)':s.a>=124?'var(--amber)':'var(--red)';
+    return`<div class="brow"><div class="blbl">${s.l} · ${s.a}</div><div class="bwrap"><div class="bfill" style="width:${pct}%;background:${s.c};"></div><div class="btgt" style="left:${tgt}%;"></div></div><div class="bstat" style="color:${sc};">${st}</div></div>`;
+  }).join('');
+}
+
+// WRONG ANSWERS
+function logWA(){
+  const exam=document.getElementById('waexam').value,sec=document.getElementById('wasec').value;
+  const topIn=document.getElementById('watopic').value;const topics=selT.length?selT:(topIn?[topIn]:[]);
+  const reason=document.getElementById('wareason').value,n2=document.getElementById('wanotes').value;
+  if(!topics.length){alert('Enter or select a topic.');return;}
+  topics.forEach(t=>{was.push({exam,sec,topic:t,reason,notes:n2,date:TK,id:Date.now()+Math.random()});});
+  sv('mc-wa',was);showToast();renderWA();
+  document.getElementById('watopic').value='';document.getElementById('wanotes').value='';
+  selT=[];document.querySelectorAll('.ttag').forEach(el=>{el.classList.remove('sel');});
+}
+function delWA(id){was=was.filter(w=>w.id!==id);sv('mc-wa',was);renderWA();}
+
+function renderWA(){
+  const counts={};was.forEach(w=>{const k=`${w.sec}: ${w.topic}`;counts[k]=(counts[k]||0)+1;});
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const wasum=document.getElementById('wasum');
+  if(!sorted.length){wasum.innerHTML='<div style="text-align:center;padding:16px;color:var(--tx3);font-size:13px;">No wrong answers logged yet</div>';}
+  else{wasum.innerHTML=sorted.map(([k,c])=>{const sec=k.split(':')[0];const col=sec==='C/P'?'var(--amber)':sec==='CARS'?'var(--coral)':sec==='B/B'?'var(--green)':'var(--purple)';return`<div class="brow"><div class="blbl" style="font-size:10px;width:110px;color:${col};">${k}</div><div class="bwrap"><div class="bfill" style="width:${Math.min(c*20,100)}%;background:${col};"></div></div><div style="font-size:11px;font-weight:700;color:var(--tx2);width:24px;text-align:right;">${c}×</div></div>`;}).join('');}
+  const walist=document.getElementById('walist');
+  if(!was.length){walist.innerHTML='<div style="text-align:center;padding:20px;color:var(--tx3);font-size:13px;">None logged yet</div>';return;}
+  const grp={};was.forEach(w=>{if(!grp[w.exam])grp[w.exam]=[];grp[w.exam].push(w);});
+  walist.innerHTML=Object.entries(grp).map(([exam,items])=>`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">${exam}</div>${items.map(w=>`<div class="wal"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:13px;font-weight:600;">${w.topic}</div><div style="font-size:11px;color:var(--tx2);">${w.sec} · ${w.reason}</div></div><button class="dbtn" onclick="delWA(${w.id})">×</button></div>${w.notes?`<div style="font-size:11px;color:var(--tx3);margin-top:3px;">${w.notes}</div>`:''}</div>`).join('')}</div>`).join('');
+}
+
+// CHARTS
+let c1=null,c2=null,c3=null;
+function renderCharts(){
+  const fl=scores.filter(s=>s.total).slice().reverse();
+  const ctx1=document.getElementById('sc1').getContext('2d');
+  if(c1)c1.destroy();
+  if(fl.length){c1=new Chart(ctx1,{type:'line',data:{labels:fl.map(s=>s.type.replace('(Blueprint)','').trim()),datasets:[{label:'Total',data:fl.map(s=>s.total),borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,0.08)',tension:0.3,pointRadius:5,pointBackgroundColor:'#1D9E75'},{label:'Target',data:fl.map(()=>510),borderColor:'rgba(136,135,128,0.4)',pointRadius:0,borderDash:[4,4]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:472,max:528,ticks:{stepSize:4},grid:{color:'rgba(128,128,128,0.1)'}},x:{grid:{display:false},ticks:{font:{size:9},maxRotation:30}}}}});}
+  const fl2=scores.filter(s=>s.cp||s.cars||s.bb||s.ps);
+  const avg2=arr=>arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length):0;
+  const ctx2=document.getElementById('sc2').getContext('2d');
+  if(c2)c2.destroy();
+  if(fl2.length){c2=new Chart(ctx2,{type:'bar',data:{labels:['C/P','CARS','B/B','P/S'],datasets:[{label:'Avg',data:[avg2(fl2.map(s=>s.cp).filter(Boolean)),avg2(fl2.map(s=>s.cars).filter(Boolean)),avg2(fl2.map(s=>s.bb).filter(Boolean)),avg2(fl2.map(s=>s.ps).filter(Boolean))],backgroundColor:['rgba(186,117,23,0.75)','rgba(216,90,48,0.75)','rgba(29,158,117,0.75)','rgba(127,119,221,0.75)'],borderRadius:5},{label:'Target',data:[127.5,127.5,127.5,127.5],type:'line',borderColor:'rgba(136,135,128,0.5)',pointRadius:0,borderDash:[4,4]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:118,max:132,ticks:{stepSize:2},grid:{color:'rgba(128,128,128,0.1)'}},x:{grid:{display:false}}}}});}
+}
+
+// NOTES
+function saveDayNote(){
+  const hrs=parseFloat(document.getElementById('nhrs').value)||0,what=document.getElementById('nwhat').value;
+  const good=document.getElementById('ngood').value,hard=document.getElementById('nhard').value;
+  const mood=document.getElementById('nmood').value;
+  notes[TK]={hrs,what,good,hard,mood};sv('mc-notes',notes);showToast();renderNotes();updateStreak();
+}
+function renderNotes(){
+  const sorted=Object.entries(notes).sort((a,b)=>b[0].localeCompare(a[0]));
+  const list=document.getElementById('nlist');
+  if(!sorted.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--tx3);font-size:13px;">No notes yet!</div>';return;}
+  list.innerHTML=sorted.map(([k,n2])=>{
+    const d=new Date(k+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    return`<div style="padding:10px 0;border-bottom:.5px solid var(--bdr);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;">${d}</div>
+        <div style="display:flex;gap:5px;align-items:center;">${n2.hrs?`<span class="badge brev">${n2.hrs}h</span>`:''}<span style="font-size:12px;">${n2.mood?n2.mood.split(' ')[0]:''}</span></div>
+      </div>
+      ${n2.what?`<div style="font-size:12px;color:var(--tx);margin-bottom:2px;"><span style="font-weight:700;color:var(--tx3);">Covered: </span>${n2.what}</div>`:''}
+      ${n2.good?`<div style="font-size:12px;color:var(--green);margin-bottom:2px;"><span style="font-weight:700;">✓ </span>${n2.good}</div>`:''}
+      ${n2.hard?`<div style="font-size:12px;color:var(--amber);"><span style="font-weight:700;">↺ </span>${n2.hard}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// STREAK
+function updateStreak(){
+  let streak=0;let d=new Date(TODAY);
+  while(true){
+    const key=dk(d.getFullYear(),d.getMonth(),d.getDate());
+    const hasDone=ld('mc-done-'+key)&&Object.values(ld('mc-done-'+key)||{}).some(Boolean);
+    const hasNote=notes[key];const hasQN=ld('mc-qn-'+key);
+    if(hasDone||hasNote||hasQN)streak++;else break;
+    d.setDate(d.getDate()-1);
+  }
+  document.getElementById('sv').textContent=streak;
+  document.getElementById('bstreak').textContent=streak;
+  const dots=[];
+  for(let i=29;i>=0;i--){
+    const dd=new Date(TODAY);dd.setDate(dd.getDate()-i);
+    const key=dk(dd.getFullYear(),dd.getMonth(),dd.getDate());
+    const hasDone=ld('mc-done-'+key)&&Object.values(ld('mc-done-'+key)||{}).some(Boolean);
+    const active=hasDone||notes[key]||ld('mc-qn-'+key);
+    dots.push(`<div class="sdot" style="background:${active?'var(--green)':'var(--bg)'};border:.5px solid ${active?'var(--green)':'var(--bdrs)'};" title="${dd.toLocaleDateString('en-US',{month:'short',day:'numeric'})}"><span style="color:${active?'white':'var(--tx3)'};">${dd.getDate()}</span></div>`);
+  }
+  document.getElementById('sdots').innerHTML=dots.join('');
+  renderHrsChart();
+}
+
+function renderHrsChart(){
+  const wks=[],labs=[];
+  for(let w=7;w>=0;w--){
+    let tot=0;const s2=new Date(TODAY);s2.setDate(s2.getDate()-w*7-6);
+    labs.push(s2.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+    for(let d2=0;d2<7;d2++){const dd=new Date(s2);dd.setDate(dd.getDate()+d2);const key=dk(dd.getFullYear(),dd.getMonth(),dd.getDate());const n2=notes[key];if(n2&&n2.hrs)tot+=parseFloat(n2.hrs)||0;}
+    wks.push(Math.round(tot*10)/10);
+  }
+  const ctx=document.getElementById('hch').getContext('2d');
+  if(c3)c3.destroy();
+  c3=new Chart(ctx,{type:'bar',data:{labels:labs,datasets:[{data:wks,backgroundColor:'rgba(29,158,117,0.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(128,128,128,0.1)'},ticks:{stepSize:5}},x:{ticks:{maxRotation:45,font:{size:9}},grid:{display:false}}}}});
+}
+
+function showSec(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');btn.classList.add('active');
+  document.getElementById('main').scrollTop=0;sv('mc-tab',id);
+  if(id==='scores')renderCharts();if(id==='notes')renderHrsChart();
+}
+function si(sec,tab,btn){
+  document.querySelectorAll(`#sec-${sec} .isec`).forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll(`#sec-${sec} .itab`).forEach(b=>b.classList.remove('active'));
+  document.getElementById(`${sec}-${tab}`).classList.add('active');btn.classList.add('active');
+  if(tab==='chart')renderCharts();if(tab==='streak')renderHrsChart();
+}
+function showToast(){const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+
+// INIT
+const lastTab=ld('mc-tab');
+if(lastTab){const btn=document.getElementById('nav-'+lastTab);if(btn)showSec(lastTab,btn);}
+renderToday();renderScores();renderWA();renderNotes();updateStreak();
+</script>
+</body>
+</html>
